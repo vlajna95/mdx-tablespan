@@ -16,8 +16,8 @@ setup(
 	url = "https://github.com/vlajna95/mdx-tablespan",
 	packages = find_packages(exclude=["test*"]),
 	entry_point = {
-		"markdown.extensions" = [
-			"tablespan = tablespan:TableSpanExtension",
+		"markdown.extensions": [
+			"tablespan = tablespan:TableSpanExtension"
 		]
 	},
 	install_requires = [
