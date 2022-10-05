@@ -1,11 +1,16 @@
+import logging
 from markdown.blockprocessors import BlockProcessor
 from markdown.extensions import Extension
 from markdown.inlinepatterns import Pattern, BACKTICK_RE
-from markdown.util import etree
+import xml.etree.ElementTree as etree # from markdown.util import etree
 
 
 class SpanTableProcessor(BlockProcessor):
 	""" Process Tables. """
+	
+	def __init__(self, md, caption_mark=";"):
+		self.md = md
+		self.caption_mark = caption_mark
 	
 	def test(self, parent, block):
 		rows = block.split('\n')
@@ -62,6 +67,11 @@ class SpanTableProcessor(BlockProcessor):
 		header = block[0].strip()
 		separator = block[1].strip()
 		rows = [] if len(block) < 3 else block[2:]
+		# add a table caption if the last row starts with the caption_mark string
+		caption = ""
+		if rows[-1].startswith(self.caption_mark):
+			caption = rows.pop(-1)
+			# logging.info(f"{caption[caption.find(self.caption_mark):]} - {len(rows)} row(s) left.")
 		# Get format type (bordered by pipes or not)
 		border = False
 		if header.startswith('|'):
@@ -79,6 +89,9 @@ class SpanTableProcessor(BlockProcessor):
 				align.append(None)
 		# Build table
 		table = etree.SubElement(parent, 'table')
+		if caption != "":
+			table_caption = etree.SubElement(table, "caption")
+			table_caption.text = caption.replace(self.caption_mark, "").strip(" ")
 		thead = etree.SubElement(table, 'thead')
 		self._build_row(header, thead, align, border)
 		tbody = etree.SubElement(table, 'tbody')
@@ -171,9 +184,16 @@ class SpanTableProcessor(BlockProcessor):
 class TableSpanExtension(Extension):
 	""" Add tables to Markdown. """
 	
-	def extendMarkdown(self, md, md_globals):
-		""" Add an instance of SpanTableProcessor to BlockParser. """
-		md.parser.blockprocessors.add('spantable', SpanTableProcessor(md.parser), '_begin')
+	def __init__(self, **kwargs):
+		self.config = {
+			"caption_mark": [";", "The string to be used as a mark for the row containing the table caption"],
+		}
+		super(TableSpanExtension, self).__init__(**kwargs)
+	
+	def extendMarkdown(self, md):
+		"""Register an instance of SpanTableProcessor in BlockParsers."""
+		md.parser.blockprocessors.deregister("table")
+		md.parser.blockprocessors.register(SpanTableProcessor(md.parser, caption_mark=self.getConfig("caption_mark")), "table", 75)
 
 
 def makeExtension(*args, **kwargs):

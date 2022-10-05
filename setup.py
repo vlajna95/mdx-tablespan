@@ -5,8 +5,8 @@ with open("README.md", "r", encoding="utf-8") as readme:
 
 setup(
 	name = "mdx-tablespan",
-	version = "1.0",
-	keywords = "markdown extension tables spanning cellspan rowspan",
+	version = "1.0.1",
+	keywords = "markdown-extension tables spanning cellspan colspan rowspan",
 	description = "Python Markdown extension to add table spanning",
 	long_description = long_description,
 	long_description_content_type = "text/markdown",
@@ -21,7 +21,7 @@ setup(
 		]
 	},
 	install_requires = [
-		"markdown>=3",
+		"markdown>=3.4",
 	],
 	license = "GNU General Public License v3.0",
 	classifiers = [
