@@ -65,7 +65,7 @@ class SpanTableProcessor(BlockProcessor):
 	def run(self, parent, blocks):
 		""" Parse a table block and build table. """
 		block = blocks.pop(0).split("\n")
-		sep_re = r"^\|\s*\-+\s*(\|\s*\-+\s*)+\|$"
+		sep_re = r"^\|\s*\:?\-+\:?\s*(\|\s*\:?\-+\:?\s*)+\|$"
 		sep_index = next((i for i, l in enumerate(block) if re.search(sep_re, l)), None) # block.index(sep_re)
 		separator = block[sep_index].strip() # block[1].strip()
 		header = block[0:sep_index] # block[0].strip()
@@ -82,6 +82,7 @@ class SpanTableProcessor(BlockProcessor):
 		# Get alignment of columns
 		align = []
 		for c in self._split_row(separator, border):
+			c = c.strip()
 			if c.startswith(":") and c.endswith(":"):
 				align.append("center")
 			elif c.startswith(":"):
